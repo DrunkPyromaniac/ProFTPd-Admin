@@ -560,31 +560,28 @@ class AdminClass {
         if (strlen($userdata[$field_passwd]) > 0) {
           $passwd_format = '';
           if ($passwd_encryption == 'pbkdf2') {
-            $passwd = hash_pbkdf2("sha1", $userdata[$field_passwd], $userdata[$field_userid], 5000, 40);
+            $passwd = $this->dbConn->escape(hash_pbkdf2("sha1", $userdata[$field_passwd], $userdata[$field_userid], 5000, 40));
             $passwd_format = ' %s="%s", ';
           } else {
-            $passwd = $passwd_encryption.'("'.$userdata[$field_passwd].'")';
+            $passwd = $passwd_encryption.'("'.$this->dbConn->escape($userdata[$field_passwd]).'")';
             $passwd_format = ' %s=%s, ';
           }
           $passwd_query = sprintf($passwd_format, $field_passwd, $passwd);
         }
 
-        $format = 'UPDATE %s SET %s %s="%s", %s="%s", %s="%s", %s="%s", %s="%s", %s="%s", %s="%s", %s="%s", %s="%s", %s="%s", %s="%s", %s="%s" WHERE %s="%s"';
-        $query = sprintf($format, $this->config['table_users'],
-                                  $passwd_query,
-                                  $field_userid,   $userdata[$field_userid],
-                                  $field_uid,      $userdata[$field_uid],
-                                  $field_ugid,     $userdata[$field_ugid],
-                                  $field_homedir,  $userdata[$field_homedir],
-                                  $field_shell,    $userdata[$field_shell],
-                                  $field_title,    $userdata[$field_title],
-                                  $field_name,     $userdata[$field_name],
-                                  $field_company,  $userdata[$field_company],
-                                  $field_email,    $userdata[$field_email],
-                                  $field_comment,  $userdata[$field_comment],
-                                  $field_disabled, $userdata[$field_disabled],
-                                  $field_last_modified, date('Y-m-d H:i:s'),
-                                  $field_id,       $userdata[$field_id]);
+        $query = sprintf('UPDATE %s SET %s %s=%s',
+                         $this->config['table_users'],
+                         $passwd_query,
+                         $field_last_modified,
+                         $this->dbConn->sysdate());
+
+        foreach (array_keys($userdata) as $key) {
+          if ($key == "" || $key == $this->config['field_passwd'])
+            continue;
+          $query .= sprintf(', %s="%s"', $key, $this->dbConn->escape($userdata[$key]));
+        }
+        $query .= sprintf(' WHERE %s="%s"', $field_id, $userdata[$field_id]);
+        printf("SQL: %s", $query);
         $result = $this->dbConn->query($query);
         return $result;
     }
