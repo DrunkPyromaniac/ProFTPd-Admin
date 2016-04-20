@@ -336,6 +336,7 @@ include ("includes/header.php");
             </div>
           </div>
           <!-- Title -->
+<?php if ($field_title != ""): ?>
           <div class="form-group">
             <label for="<?php echo $field_title; ?>" class="col-sm-4 control-label">Title</label>
             <div class="col-sm-8">
@@ -345,6 +346,7 @@ include ("includes/header.php");
               </select>
             </div>
           </div>
+<?php endif; ?>
           <!-- Real name -->
           <div class="form-group">
             <label for="<?php echo $field_name; ?>" class="col-sm-4 control-label">Name</label>
