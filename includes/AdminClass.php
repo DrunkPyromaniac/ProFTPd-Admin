@@ -292,34 +292,17 @@ class AdminClass {
         } else {
           $passwd = $passwd_encryption.'("'.$userdata[$field_passwd].'")';
         }
-        $format = 'INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ("%s","%s","%s",%s,"%s","%s","%s","%s","%s","%s","%s","%s","%s")';
-        $query = sprintf($format, $this->config['table_users'],
-                                  $field_userid,
-                                  $field_uid,
-                                  $field_ugid,
-                                  $field_passwd,
-                                  $field_homedir,
-                                  $field_shell,
-                                  $field_title,
-                                  $field_name,
-                                  $field_company,
-                                  $field_email,
-                                  $field_comment,
-                                  $field_disabled,
-                                  $field_last_modified,
-                                  $userdata[$field_userid],
-                                  $userdata[$field_uid],
-                                  $userdata[$field_ugid],
-                                  $passwd,
-                                  $userdata[$field_homedir],
-                                  $userdata[$field_shell],
-                                  $userdata[$field_title],
-                                  $userdata[$field_name],
-                                  $userdata[$field_company],
-                                  $userdata[$field_email],
-                                  $userdata[$field_comment],
-                                  $userdata[$field_disabled],
-                                  date('Y-m-d H:i:s'));
+        $query = sprintf('INSERT INTO %s (%s, %s', $this->config['table_users'], $field_passwd, $field_last_modified);
+        $values = array($passwd, $this->dbConn->sysdate());
+
+        foreach (array_keys($userdata) as $key) {
+          if ($key == "" || $key == $this->config['field_passwd'])
+            continue;
+          $query .= sprintf(', %s', $key);
+          array_push($values, sprintf('"%s"', $this->dbConn->escape($userdata[$key])));
+        }
+        $query .= sprintf(') VALUES (%s)', implode(', ', $values));
+        printf("SQL: %s<br />\n", $query);
         $result = $this->dbConn->query($query);
         return $result;
     }
@@ -541,18 +524,7 @@ class AdminClass {
      */
     function update_user($userdata) {
         $field_id       = $this->config['field_id'];
-        $field_userid   = $this->config['field_userid'];
-        $field_uid      = $this->config['field_uid'];
-        $field_ugid     = $this->config['field_ugid'];
         $field_passwd   = $this->config['field_passwd'];
-        $field_homedir  = $this->config['field_homedir'];
-        $field_shell    = $this->config['field_shell'];
-        $field_title    = $this->config['field_title'];
-        $field_name     = $this->config['field_name'];
-        $field_company  = $this->config['field_company'];
-        $field_email    = $this->config['field_email'];
-        $field_comment  = $this->config['field_comment'];
-        $field_disabled = $this->config['field_disabled'];
         $field_last_modified = $this->config['field_last_modified'];
         $passwd_encryption = $this->config['passwd_encryption'];
 
@@ -576,12 +548,11 @@ class AdminClass {
                          $this->dbConn->sysdate());
 
         foreach (array_keys($userdata) as $key) {
-          if ($key == "" || $key == $this->config['field_passwd'])
+          if ($key == "" || $key == $field_passwd)
             continue;
           $query .= sprintf(', %s="%s"', $key, $this->dbConn->escape($userdata[$key]));
         }
         $query .= sprintf(' WHERE %s="%s"', $field_id, $userdata[$field_id]);
-        printf("SQL: %s", $query);
         $result = $this->dbConn->query($query);
         return $result;
     }
