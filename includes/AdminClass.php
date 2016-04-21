@@ -212,8 +212,8 @@ class AdminClass {
      * @return boolean true if username exists, false if not
      */
     function check_username($userid) {
-        $format = 'SELECT 1 FROM %s WHERE %s=%d';
-        $query = sprintf($format, $this->config['table_users'], $this->config['field_userid'], $userid);
+        $format = 'SELECT 1 FROM %s WHERE %s="%s"';
+        $query = sprintf($format, $this->config['table_users'], $this->config['field_userid'], $this->dbConn->escape($userid));
         $result = $this->dbConn->get_row($query);
         if (is_object($result)) return true;
         return false;
@@ -291,7 +291,6 @@ class AdminClass {
           array_push($values, sprintf('"%s"', $this->dbConn->escape($userdata[$key])));
         }
         $query .= sprintf(') VALUES (%s)', implode(', ', $values));
-        printf("SQL: %s<br />\n", $query);
         $result = $this->dbConn->query($query);
         return $result;
     }
