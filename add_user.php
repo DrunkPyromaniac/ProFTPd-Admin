@@ -234,6 +234,7 @@ include ("includes/header.php");
                 <input type="text" class="form-control" id="<?php echo $field_shell; ?>" name="<?php echo $field_shell; ?>" value="<?php echo $shell; ?>" placeholder="Enter the user's shell" />
               </div>
             </div>
+<?php if ($field_title != ""): ?> 
             <!-- Title -->
             <div class="form-group">
               <label for="<?php echo $field_title; ?>" class="col-sm-4 control-label">Title</label>
@@ -244,6 +245,7 @@ include ("includes/header.php");
                 </select>
               </div>
             </div>
+<?php endif; ?>
             <!-- Real name -->
             <div class="form-group">
               <label for="<?php echo $field_name; ?>" class="col-sm-4 control-label">Name</label>
